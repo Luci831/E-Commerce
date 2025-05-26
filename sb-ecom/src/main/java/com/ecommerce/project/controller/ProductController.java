@@ -22,6 +22,8 @@ import com.ecommerce.project.payload.ProductDto;
 import com.ecommerce.project.payload.ProductResponse;
 import com.ecommerce.project.service.ProductService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api")
 public class ProductController {
@@ -30,9 +32,12 @@ public class ProductController {
 	ProductService productService;
 
 	@PostMapping("/admin/categories/{categoryId}/product")
-	public ResponseEntity<ProductDto> addProduct(@RequestBody ProductDto productDto,
+	public ResponseEntity<ProductDto> addProduct(@Valid @RequestBody ProductDto productDto,
 			                                      @PathVariable Long categoryId)
 	{
+		//check if the product is available or not
+		
+		
 		ProductDto savedProduct = productService.addProduct(categoryId,productDto);
 		
 		return new ResponseEntity<ProductDto>(savedProduct,HttpStatus.OK);
@@ -61,7 +66,7 @@ public class ProductController {
 	}
 	
 	@PutMapping("/admin/products/{productId}")
-	public ResponseEntity<ProductDto> updateProducts(@RequestBody ProductDto productDto,
+	public ResponseEntity<ProductDto> updateProducts(@Valid @RequestBody ProductDto productDto,
 			                                         @PathVariable Long productId)
 	{
 		ProductDto updatedProduct=productService.updateProduct(productDto,productId);
