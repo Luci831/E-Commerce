@@ -1,5 +1,6 @@
 package com.ecommerce.project.service;
 
+ 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,6 +11,10 @@ import java.util.UUID;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -84,17 +89,41 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public ProductResponse getProducts() {
+	public ProductResponse getProducts(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
 		// TODO Auto-generated method stub
+		
+		//Pagination
+		Sort sortByandOrder= sortOrder.equalsIgnoreCase("asc")
+				             ?Sort.by(sortBy).ascending()
+				             :Sort.by(sortBy).descending();
+		
+		 Pageable pageDetails= PageRequest.of(pageNumber, pageSize,sortByandOrder);
+		 Page<Product> pageProducts=productRepository.findAll(pageDetails);
+		 
+		 List<Product> products= pageProducts.getContent();
+		 
+		 //Setting pageResponse
+		 List<Product> findAll = productRepository.findAll();
+		 List<ProductDto> list = findAll.stream().map(product -> modelMapper.map(product, ProductDto.class)).toList();
+
+		 ProductResponse productResponse=new ProductResponse();
+		 
+		 productResponse.setContent(list);
+		 productResponse.setPageNumber(pageProducts.getNumber());
+		 productResponse.setPageSize(pageProducts.getSize());
+		 productResponse.setTotalElements(pageProducts.getTotalElements());
+		 productResponse.setTotalPages(pageProducts.getTotalPages());
+		 productResponse.setLastPage(pageProducts.isLast());
+		
+		
 		
 		//Validation for if product in DB =0
 
-		List<Product> findAll = productRepository.findAll();
+		
 
-		List<ProductDto> list = findAll.stream().map(product -> modelMapper.map(product, ProductDto.class)).toList();
 
-		ProductResponse productResponse = new ProductResponse();
-		productResponse.setContent(list);
+		
+		
 		
 		if(findAll.isEmpty())
 			throw new ApiException("No products found in DB!!");

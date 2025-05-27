@@ -14,7 +14,7 @@ public interface ProductService {
 
 	 ProductDto addProduct(Long categoryId,ProductDto productDto);
 
-	 ProductResponse getProducts();
+	 ProductResponse getProducts(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 
 	 ProductResponse getProductsByCategory(Long categoryId);
 
